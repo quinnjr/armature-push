@@ -1,12 +1,12 @@
 [package]
 name = "armature-push"
 version = "0.2.0"
-edition.workspace = true
-rust-version.workspace = true
-authors.workspace = true
-license.workspace = true
+edition = "2024"
+rust-version = "1.94.1"
+authors = ["Joseph Quinn <quinn.josephr@proton.me>"]
+license = "Apache-2.0"
 repository = "https://github.com/quinnjr/armature-push"
-homepage.workspace = true
+homepage = "https://quinnjr.github.io/armature"
 description = "Push notifications for Armature - Web Push, FCM, and APNS"
 keywords = ["push", "notifications", "fcm", "apns", "web-push"]
 categories = ["web-programming", "asynchronous"]
