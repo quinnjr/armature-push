@@ -51,7 +51,7 @@ bytes = "1"
 web-push = { version = "0.11", default-features = false, optional = true }
 
 # JWT for FCM/APNS. `rust_crypto` is required: without it (or `aws_lc_rs`)
-# jsonwebtoken 10's `encode`/`decode` panic at runtime because no process-level
+# jsonwebtoken (10 and 11)'s `encode`/`decode` panic at runtime because no process-level
 # `CryptoProvider` can be auto-selected. `rust_crypto` keeps the pure-Rust
 # story consistent with the rest of this crate (rustls elsewhere, no libcurl).
 jsonwebtoken = { version = "11.0", optional = true, default-features = false, features = ["use_pem", "rust_crypto"] }
