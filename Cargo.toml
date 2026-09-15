@@ -13,7 +13,7 @@ categories = ["web-programming", "asynchronous"]
 
 [dependencies]
 # Async runtime
-tokio = { version = "1.52", features = ["sync", "time"] }
+tokio = { version = "1.53", features = ["sync", "time"] }
 async-trait = "0.1"
 
 # Serialization
@@ -54,14 +54,14 @@ web-push = { version = "0.11", default-features = false, optional = true }
 # jsonwebtoken 10's `encode`/`decode` panic at runtime because no process-level
 # `CryptoProvider` can be auto-selected. `rust_crypto` keeps the pure-Rust
 # story consistent with the rest of this crate (rustls elsewhere, no libcurl).
-jsonwebtoken = { version = "10.4", optional = true, default-features = false, features = ["use_pem", "rust_crypto"] }
+jsonwebtoken = { version = "11.0", optional = true, default-features = false, features = ["use_pem", "rust_crypto"] }
 
 # Cryptography for APNS
-p256 = { version = "0.13", features = ["ecdsa", "pem"], optional = true }
+p256 = { version = "0.14", features = ["ecdsa", "pem"], optional = true }
 
 [dev-dependencies]
 cargo-husky = { version = "1.5", default-features = false, features = ["user-hooks"] }
-tokio = { version = "1.52", features = ["rt-multi-thread", "macros", "sync", "time", "net", "io-util", "fs", "test-util"] }
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "sync", "time", "net", "io-util", "fs", "test-util"] }
 armature-testkit = { path = "../armature-testkit" }
 
 [features]
