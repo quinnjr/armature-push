@@ -523,6 +523,9 @@ impl WebPushProvider {
             .timeout(config.timeout)
             .connect_timeout(config.connect_timeout)
             .redirect(reqwest::redirect::Policy::none())
+            // An ambient HTTP(S)_PROXY would resolve the endpoint itself,
+            // bypassing the resolve-and-pin guard entirely.
+            .no_proxy()
             .build()
             .map_err(|e| PushError::Config(e.to_string()))?;
 
@@ -575,6 +578,7 @@ impl WebPushProvider {
             .timeout(self.config.timeout)
             .connect_timeout(self.config.connect_timeout)
             .redirect(reqwest::redirect::Policy::none())
+            .no_proxy()
             .resolve_to_addrs(host, &addrs)
             .build()
             .map_err(|e| PushError::Config(e.to_string()))?;
@@ -697,7 +701,11 @@ impl WebPushProvider {
             });
         }
 
-        debug!(endpoint = %subscription.endpoint, "Sending web push notification");
+        // The endpoint URL is a per-device capability; log only a fingerprint.
+        debug!(
+            endpoint = %crate::host_guard::token_fingerprint(&subscription.endpoint),
+            "Sending web push notification"
+        );
 
         // Send the built message over our own reqwest (rustls) client. This
         // hand-rolls the same request web-push 0.11's

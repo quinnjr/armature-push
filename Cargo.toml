@@ -1,6 +1,6 @@
 [package]
 name = "armature-push"
-version = "0.2.2"
+version = "0.3.0"
 edition = "2024"
 rust-version = "1.94.1"
 authors = ["Joseph Quinn <quinn.josephr@proton.me>"]
@@ -50,23 +50,31 @@ bytes = "1"
 # build host and stays pure-Rust/rustls like the rest of the workspace.
 web-push = { version = "0.11", default-features = false, optional = true }
 
-# JWT for FCM/APNS. `rust_crypto` is required: without it (or `aws_lc_rs`)
-# jsonwebtoken (10 and 11)'s `encode`/`decode` panic at runtime because no process-level
-# `CryptoProvider` can be auto-selected. `rust_crypto` keeps the pure-Rust
-# story consistent with the rest of this crate (rustls elsewhere, no libcurl).
-jsonwebtoken = { version = "11.0", optional = true, default-features = false, features = ["use_pem", "rust_crypto"] }
+# JWT for FCM (RS256) and APNS (ES256). A crypto backend feature is required:
+# without one, jsonwebtoken (10 and 11)'s `encode`/`decode` panic at runtime
+# because no `CryptoProvider` can be auto-selected. `aws_lc_rs` rather than
+# `rust_crypto`: the latter pulls the `rsa` crate, whose RSA private-key
+# operations are not constant-time (RUSTSEC-2023-0071, "Marvin"), and FCM signs
+# with an RSA service-account key on every token refresh. aws-lc-rs is already
+# the rustls backend used throughout the workspace, and matches armature-jwt
+# and armature-auth.
+jsonwebtoken = { version = "11.0", optional = true, default-features = false, features = ["use_pem", "aws_lc_rs"] }
 
-# Cryptography for APNS
-p256 = { version = "0.14", features = ["ecdsa", "pem"], optional = true }
+# Shared SSRF guard (address classification) for Web Push endpoints.
+armature-http-client = { version = "0.3", optional = true }
 
 [dev-dependencies]
 cargo-husky = { version = "1.5", default-features = false, features = ["user-hooks"] }
 tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "sync", "time", "net", "io-util", "fs", "test-util"] }
 armature-testkit = { path = "../armature-testkit" }
+# Test keys are generated at test time (no committed private keys). aws-lc-rs
+# is already in the graph via jsonwebtoken's `aws_lc_rs` backend.
+aws-lc-rs = "1"
+base64 = "0.22"
 
 [features]
 default = ["fcm"]
-web-push = ["dep:web-push"]
+web-push = ["dep:web-push", "dep:armature-http-client"]
 fcm = ["jsonwebtoken"]
-apns = ["jsonwebtoken", "p256", "reqwest/http2"]
+apns = ["jsonwebtoken", "reqwest/http2"]
 all = ["web-push", "fcm", "apns"]
