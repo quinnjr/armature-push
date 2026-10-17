@@ -484,7 +484,10 @@ impl FcmProvider {
             self.config.api_base, self.config.project_id
         );
 
-        debug!(token = %token, "Sending FCM notification");
+        debug!(
+            token = %crate::host_guard::token_fingerprint(token),
+            "Sending FCM notification"
+        );
 
         // Serialize up front so a 413 can report the real body size rather
         // than falling through to an opaque `Provider` error.
