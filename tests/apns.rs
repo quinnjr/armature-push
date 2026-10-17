@@ -11,23 +11,23 @@ use armature_push::{
 };
 use armature_testkit::{StubResponse, StubServer};
 
-// A throwaway EC (P-256) private key in PKCS#8 PEM form, used only to
-// exercise the ES256 JWT signing path against a stub server; it signs no
-// real tokens. `jsonwebtoken`'s PEM decoder only recognizes `PRIVATE KEY`
-// (PKCS#8), not the SEC1 `EC PRIVATE KEY` header.
-const EC_PRIVATE_KEY: &str = "-----BEGIN PRIVATE KEY-----\n\
-MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgOyXw4GYy1pYEbh35\n\
-9XgYkJb1FGjk1aL27YuyTsnamBShRANCAAQbRc4Wqq2In6Cu30VQw7vuS+Ge34qM\n\
-j+ve0j9VziXnHi5UsZiy3LBy4hkjOxQctW99w9n66PflFhaNWSA1CmT3\n\
------END PRIVATE KEY-----\n";
+mod support;
+
+// The ES256 signing key is generated at test time (see `support`); no private
+// key is committed.
 
 async fn provider_against(server: &StubServer) -> ApnsProvider {
     // `allow_insecure_loopback` is required because the stub speaks plain http;
     // the default refuses a non-https endpoint so a production binary can never
     // send a JWT-bearing request in the clear.
-    let config = ApnsConfig::new("team-id", "key-id", EC_PRIVATE_KEY, "com.example.app")
-        .environment(ApnsEnvironment::Custom(server.url().to_string()))
-        .allow_insecure_loopback(true);
+    let config = ApnsConfig::new(
+        "team-id",
+        "key-id",
+        support::ec_private_key_pem(),
+        "com.example.app",
+    )
+    .environment(ApnsEnvironment::Custom(server.url().to_string()))
+    .allow_insecure_loopback(true);
     ApnsProvider::new(config).await.expect("build provider")
 }
 
@@ -398,9 +398,14 @@ async fn truncated_body_server(status_line: &'static str, body: &'static str) ->
 }
 
 async fn provider_at(url: String) -> ApnsProvider {
-    let config = ApnsConfig::new("team-id", "key-id", EC_PRIVATE_KEY, "com.example.app")
-        .environment(ApnsEnvironment::Custom(url))
-        .allow_insecure_loopback(true);
+    let config = ApnsConfig::new(
+        "team-id",
+        "key-id",
+        support::ec_private_key_pem(),
+        "com.example.app",
+    )
+    .environment(ApnsEnvironment::Custom(url))
+    .allow_insecure_loopback(true);
     ApnsProvider::new(config).await.expect("build provider")
 }
 

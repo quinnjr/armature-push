@@ -521,7 +521,10 @@ impl ApnsProvider {
         let url = format!("{}/3/device/{}", self.config.environment.endpoint(), token);
         let payload_size = prepared.body.len();
 
-        debug!(token = %token, "Sending APNS notification");
+        debug!(
+            token = %crate::host_guard::token_fingerprint(token),
+            "Sending APNS notification"
+        );
 
         let response = self
             .client
