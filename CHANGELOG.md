@@ -9,6 +9,8 @@ Earlier changes are recorded in the workspace [`CHANGELOG.md`](../CHANGELOG.md).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-17
+
 ### Security
 
 - Web Push endpoint address classification now uses the shared
